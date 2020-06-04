@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://livejs.com/live.js"></script>
+        <!-- <script src="https://webrtc.googlecode.com/svn/trunk/samples/js/base/adapter.js"></script> -->
+        <link rel="stylesheet" type="text/css" href="/static/style.css" media="screen" />
+        <style>
+            </style>
+
+        <script src='/static/virtualjoystick.js'></script>
+        <script type="text/javascript" src="/static/dat.gui.min.js"></script>
+        <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="/static/client-config.js"></script>
+    </head>
+    <body>
+        <input type="text" id="globalText">globalTextBox</input>
+        <!-- <button onclick="my_X = Math.random() * 3000, my_Y = Math.random() * 3000;">teleport</button> -->
+        <div id="joystickZone"></div>
+        <!-- <button >spawn</button> -->
+        <div id="destroy" onclick="document.getElementById('destroy').parentNode.removeChild(document.getElementById('destroy')); init();" class="fixedDiv">
+            welcome to the lounge. rules: you need a webcam. arrow keys to move. joystick in the bottom left for mobile users. click anywhere to start! <br>
+            screensharing works on chrome only. audio screensharing only supported in windows.
+        </div>
+
+        <button id="skribblLoad" onclick="toggleSkribbl();">toggle skribbl</button>
+        <iframe id="skribbl"></iframe>
+        <!-- 
+        the <video> and <audio> tags are all added and removed dynamically
+        in 'onAddStream', 'setup_local_media', and 'removePeer'/'disconnect'
+        -->
+        <script src="/static/global-games.js"></script>
+        <script src="/static/client-user-interface.js"></script>
+        <script src="/static/socketSetup.js"></script>
+        <script src="/static/client.js"></script>
+    </body>
+
+</html>

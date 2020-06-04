@@ -1,3 +1,3 @@
 #!/bin/sh
 
-node signaling-server.js
+nodemon signaling-server.js

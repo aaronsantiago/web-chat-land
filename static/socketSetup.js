@@ -1,5 +1,5 @@
 function initSocket() {
-  signaling_socket = io();
+  signaling_socket = io('http://localhost:8080');
 
   signaling_socket.on('connect', function() {
     console.log("Connected to signaling server");

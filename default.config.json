@@ -1,6 +1,0 @@
-{
-  "PORT": 443,
-  "USE_HTTPS": true,
-  "CERTPATH": "/etc/letsencrypt/live/kevbot.xyz/cert.pem",
-  "PRIVKEYPATH": "/etc/letsencrypt/live/kevbot.xyz/privkey.pem"
-}

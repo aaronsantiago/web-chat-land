@@ -25,28 +25,27 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var app = express();
 
-var server = https.createServer(httpsOptions, app);
-var io = require('socket.io').listen(server);
+// var server = https.createServer(httpsOptions, app);
 //io.set('log level', 2);
 
-// http
-//   .createServer(function(req, res) {
-//     res.writeHead(301, { Location: 'https://kevbot.xyz/thelounge' });
-//     res.end();
-//   })
-//   .listen(80);
+var server = http
+  .createServer(app)
+  .listen(PORT);
+var io = require('socket.io').listen(server);
 
-server.listen(PORT, null, function() {
-  console.log('Listening on port ' + PORT);
-});
+// server.listen(PORT, null, function() {
+//   console.log('Listening on port ' + PORT);
+// });
 app.use(bodyParser.urlencoded({ extended: false }));
+app.listen(8000);
 
-app.get('/thelounge', function(req, res) {
-  res.sendFile(__dirname + '/static/client.html');
-});
+// app.get('/thelounge', function(req, res) {
+//   res.sendFile(__dirname + '/static/client.html');
+// });
 // main.get('/index.html', function(req, res){ res.sendfile('newclient.html'); });
 // main.get('/client.html', function(req, res){ res.sendfile('newclient.html'); });
-app.use('/static', express.static('static'));
+// app.use('/static', express.static('static'));
+app.use(express.static('/static'));
 
 /*************************/
 /*** INTERESTING STUFF ***/

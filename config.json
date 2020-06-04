@@ -1,0 +1,7 @@
+{
+  "SOCKET_PORT": 38001,
+  "STATIC_PORT": 38000,
+  "USE_HTTPS": false,
+  "CERTPATH": "/etc/letsencrypt/live/webchatland.aaron.work/cert.pem",
+  "PRIVKEYPATH": "/etc/letsencrypt/live/webchatland.aaron.work/privkey.pem"
+}

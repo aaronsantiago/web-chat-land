@@ -47,22 +47,14 @@ var sockets = {};
 var avatars = {};
 
 let currentCustomId = 1000;
-let createCustom = function(params) {
+let createCustom = function(params, channel) {
   params.id = currentCustomId;
   params.peer_id = currentCustomId;
+  params.channel = channel;
   avatars[currentCustomId] = params;
 
   currentCustomId += 1;
 }
-
-createCustom({
-        x: 200,
-        y: 200,
-        width: 320,
-        height: "200",
-        url: "https://bigassmessage.com/92336",
-        type: "iframe"
-      });
 
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
@@ -75,14 +67,12 @@ createCustom({
  * the peer connection and will be streaming audio/video between eachother.
  */
 io.sockets.on('connection', function(socket) {
-  socket.channels = {};
+  socket.channel = "";
   sockets[socket.id] = socket;
 
   console.log('[' + socket.id + '] connection accepted');
   socket.on('disconnect', function() {
-    for (var channel in socket.channels) {
-      part(channel);
-    }
+    part(socket.channel);
     console.log('[' + socket.id + '] disconnected');
     delete sockets[socket.id];
     delete avatars[socket.id];
@@ -93,13 +83,22 @@ io.sockets.on('connection', function(socket) {
     var channel = config.channel;
     var userdata = config.userdata;
 
-    if (channel in socket.channels) {
-      console.log('[' + socket.id + '] ERROR: already joined ', channel);
+    if (channel == socket.channel) {
+      console.log('[' + socket.id + '] ERROR: already joined ', socket.channel);
       return;
     }
 
     if (!(channel in channels)) {
       channels[channel] = {};
+
+      createCustom({
+              x: 200,
+              y: 200,
+              width: 320,
+              height: "200",
+              url: "https://bigassmessage.com/92336",
+              type: "iframe"
+            }, channel);
     }
 
     // create avatar for new user
@@ -110,7 +109,8 @@ io.sockets.on('connection', function(socket) {
       y: 0,
       width: 320,
       height: "",
-      type: "user"
+      type: "user",
+      channel: channel
     };
 
     for (id in channels[channel]) {
@@ -127,18 +127,18 @@ io.sockets.on('connection', function(socket) {
     }
 
     channels[channel][socket.id] = socket;
-    socket.channels[channel] = channel;
+    socket.channel = channel;
   });
 
   function part(channel) {
     console.log('[' + socket.id + '] part ');
 
-    if (!(channel in socket.channels)) {
+    if (channel != socket.channel) {
       console.log('[' + socket.id + '] ERROR: not in ', channel);
       return;
     }
 
-    delete socket.channels[channel];
+    socket.channel = ""
     delete channels[channel][socket.id];
 
     for (id in channels[channel]) {
@@ -167,7 +167,7 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('createCustom', function(config) {
     // IO.SOCKETS breaks channel stuff
-    createCustom(config);
+    createCustom(config, sockets[socket.id].channel);
   });
 
   socket.on('deleteId', function(config) {
@@ -205,10 +205,12 @@ io.sockets.on('connection', function(socket) {
   function updateAllObjects() {
     for (var id in avatars) {
       // if (peer_id == socket.id) continue;
-
-      socket.emit('updateObject', avatars[id]);
+      let channel = avatars[id].channel;
+      for (let peerId in channels[channel]) {
+        channels[channel][peerId].emit('updateObject', avatars[id]);
+      }
     }
-    setTimeout(updateAllObjects, 50);
+    setTimeout(updateAllObjects, 150);
   }
   updateAllObjects();
 });

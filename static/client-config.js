@@ -1,6 +1,11 @@
 /** CONFIG **/
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+
+
 var SIGNALING_SERVER = 'http://localhost:38001';
-var DEFAULT_CHANNEL = 'some-global-channel-name';
+var DEFAULT_CHANNEL = urlParams.get("channel") || 'default';
 var MUTE_AUDIO_BY_DEFAULT = false;
 
 /** You should probably use a different stun server doing commercial stuff **/

@@ -1,3 +1,5 @@
+// This file unifies inputs and the dat.GUI menu at the top.
+
 var leftHeld = false;
 var rightHeld = false;
 var upHeld = false;
@@ -15,22 +17,14 @@ let gui = new dat.GUI();
 gui.close();
 let guiOptions = {
   receiveStreams : true,
-  godMode        : true,
+  godMode        : false,
   width          : 320,
-  streamerId     : 'btssmash'
+  height : "",
+  z_index : "",
+  iframeUrl : "https://itp.nyu.edu/camp2020/calendar",
+  imageUrl : "https://itp.nyu.edu/classes/satc-spring2014/wp-content/uploads/sites/44/2014/01/ITP-Floor.png",
 };
-gui.add(guiOptions, 'receiveStreams');
-gui.add(guiOptions, 'godMode');
-gui.add(guiOptions, 'width');
-gui.add(guiOptions, 'streamerId');
-gui.add(
-  {
-    setTwitch : () => {
-      return setTwitch(guiOptions.streamerId);
-    }
-  },
-  'setTwitch'
-);
+
 gui.add(
   {
     toggleJoystick : function() {
@@ -45,6 +39,49 @@ gui.add(
   },
   'toggleJoystick'
 );
+gui.add(guiOptions, 'receiveStreams');
+gui.add(guiOptions, 'godMode');
+gui.add(guiOptions, 'width');
+gui.add(guiOptions, 'height');
+gui.add(guiOptions, 'z_index');
+gui.add(guiOptions, 'iframeUrl');
+gui.add({
+  spawnIFrame : function() {
+    if (confirm(
+`Are you sure you want to create an iframe? This will appear for everyone.
+The spawned iframe will appear with the dimensions and url set in the config window.`)) {
+      signaling_socket.emit('createCustom', {
+        x     : my_X,
+        y     : my_Y,
+        z     : guiOptions.z_index,
+        width : guiOptions.width,
+        height : guiOptions.height,
+        url : guiOptions.iframeUrl,
+        type : "iframe"
+      });
+    }
+  }
+}, "spawnIFrame")
+
+
+gui.add(guiOptions, 'imageUrl');
+gui.add({
+  spawnImage : function() {
+    if (confirm(
+`Are you sure you want to create an image? This will appear for everyone.
+The spawned image will appear with the dimensions and url set in the config window.`)) {
+      signaling_socket.emit('createCustom', {
+        x     : my_X,
+        y     : my_Y,
+        z     : guiOptions.z_index,
+        width : guiOptions.width,
+        height : guiOptions.height,
+        url : guiOptions.imageUrl,
+        type : "image"
+      });
+    }
+  }
+}, "spawnImage")
 
 gui.add(
   {

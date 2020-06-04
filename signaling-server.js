@@ -2,7 +2,8 @@
 /*** CONFIG ***/
 /**************/
 const configData = require('./config.json');
-var PORT = configData.PORT;
+var SOCKET_PORT = configData.SOCKET_PORT;
+var STATIC_PORT = configData.STATIC_PORT;
 const USEHTTPS = configData.USEHTTPS; // true or false
 var httpsOptions = { key: '', cert: '' }; // gets OVERWRITTEN, EMPTY AS DEFAULT
 let currentObjectId = 0;
@@ -30,30 +31,38 @@ var app = express();
 
 var server = http
   .createServer(app)
-  .listen(PORT);
+  .listen(SOCKET_PORT);
 var io = require('socket.io').listen(server);
 
-// server.listen(PORT, null, function() {
-//   console.log('Listening on port ' + PORT);
-// });
 app.use(bodyParser.urlencoded({ extended: false }));
-app.listen(8000);
+app.listen(STATIC_PORT);
 
-// app.get('/thelounge', function(req, res) {
-//   res.sendFile(__dirname + '/static/client.html');
-// });
-// main.get('/index.html', function(req, res){ res.sendfile('newclient.html'); });
-// main.get('/client.html', function(req, res){ res.sendfile('newclient.html'); });
-// app.use('/static', express.static('static'));
-app.use(express.static('/static'));
+app.use(express.static('static'));
 
 /*************************/
-/*** INTERESTING STUFF ***/
+/*** SOCKET STUFF ********/
 /*************************/
 var channels = {};
 var sockets = {};
 var avatars = {};
-var sharedState = { globalText: 'global Messageboard' };
+
+let currentCustomId = 1000;
+let createCustom = function(params) {
+  params.id = currentCustomId;
+  params.peer_id = currentCustomId;
+  avatars[currentCustomId] = params;
+
+  currentCustomId += 1;
+}
+
+createCustom({
+        x: 100,
+        y: 200,
+        width: 320,
+        height: "",
+        url: "http://aaron.work",
+        type: "iframe"
+      });
 
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
@@ -92,7 +101,6 @@ io.sockets.on('connection', function(socket) {
     if (!(channel in channels)) {
       channels[channel] = {};
     }
-    socket.emit('updateGlobalText', sharedState.globalText);
 
     // create avatar for new user
     avatars[socket.id] = {
@@ -157,10 +165,16 @@ io.sockets.on('connection', function(socket) {
     }
   });
 
-  socket.on('updateGlobalText', function(config) {
+  socket.on('createCustom', function(config) {
     // IO.SOCKETS breaks channel stuff
-    sharedState.globalText = config;
-    io.sockets.emit('updateGlobalText', config);
+    createCustom(config);
+  });
+
+  socket.on('deleteId', function(config) {
+    // IO.SOCKETS breaks channel stuff
+    // createCustom(config);
+    delete avatars[config.id];
+    socket.emit("deleteId", config)
   });
 
   socket.on('relaySessionDescription', function(config) {

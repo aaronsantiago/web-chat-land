@@ -1,5 +1,11 @@
+// HERE BE DEMONS~
+// This file handles setting up callbacks to and from the server
+// along with initializing the camera. It also manages connections
+// between peers. Be VERY careful modifying code in this file.
+
+
 function initSocket() {
-  signaling_socket = io('http://localhost:8080');
+  signaling_socket = io(SIGNALING_SERVER);
 
   signaling_socket.on('connect', function() {
     console.log("Connected to signaling server");

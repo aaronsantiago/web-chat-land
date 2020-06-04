@@ -1,5 +1,5 @@
 /** CONFIG **/
-var SIGNALING_SERVER = 'https://localhost';
+var SIGNALING_SERVER = 'http://localhost:38001';
 var DEFAULT_CHANNEL = 'some-global-channel-name';
 var MUTE_AUDIO_BY_DEFAULT = false;
 

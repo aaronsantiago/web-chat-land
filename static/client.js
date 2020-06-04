@@ -1,25 +1,18 @@
+// This is the main entry point for JS in the project.
+// This file currently manages updating objects on the webpage
+// based on what it receives from the server.
+
 function init() {
   initSocket();
-  // spawnTwitch('thewaffle77', 167, 1640); //spawns into the billiards room
-  // spawnYoutubeIframe('G0IBqtO1K28', 1325, 600); //puppies in the hall
-  spawnYoutubeIframe('5qap5aO4i9A', 2300, 10); //chill anime beats in the lounge
-  addCharades();
-  // console.log("Connecting to signaling server");
 
-  $('#globalText').click(() => {
-    signaling_socket.emit('updateGlobalText', $('#globalText').val());
-  });
-
-  signaling_socket.on('updateGlobalText', (data) => {
-    $('#globalText').val(data);
-    //eval(data);
-  });
 
   function updateMyAvatar() {
     signaling_socket.emit('updateSelf', {
       x     : my_X,
       y     : my_Y,
-      width : guiOptions.width
+      z     : guiOptions.z_index,
+      width : guiOptions.width,
+      height : guiOptions.height
     });
     if (local_media != null) {
       local_media[0].volume = 0;
@@ -68,6 +61,8 @@ function init() {
         top  : `${my_Y - 200}px`
       });
       local_media[0].style.width = '' + guiOptions['width'] + 'px';
+      local_media[0].style.height = guiOptions['height'] != "" ? '' + guiOptions['height'] + 'px' : "";
+      local_media[0].style.zIndex = guiOptions['z_index'];
       if (!isScrolledIntoView(local_media[0])) local_media[0].scrollIntoView();
     }
     setTimeout(updateMyAvatarLocal, 20);
@@ -77,48 +72,52 @@ function init() {
   // This function is called whenveer the server sends an update
   // for an object in the room. It's called once for each object
   // as often as the server updates (200ms at time of writing)
-  signaling_socket.on('updateObject', function(config) {
+  signaling_socket.on('updateObject', function(objectData) {
     // check if we already have this object, if so, update it
-    if (config.id in serverObjects) {
-      let obj = serverObjects[config.id];
-      let av = config['avatar'];
+    if (objectData.id in serverObjects) {
+      let obj = serverObjects[objectData.id];
+      let av = objectData['avatar'];
       // copy all properties from the server onto our local object
       // don't overwrite it so that we keep any extra properties that we
       // added locally
-      for (let propertyName in config) {
-        serverObjects[config.id][propertyName] = config[propertyName];
+      for (let propertyName in objectData) {
+        serverObjects[objectData.id][propertyName] = objectData[propertyName];
       }
     } else {
       // if we don't have the object, create it
-      // since it's a new object, just use the config object and
+      // since it's a new object, just use the objectData object and
       // modify that
-      serverObjects[config.id] = config;
+      serverObjects[objectData.id] = objectData;
 
       // custom initializations for different object types
-      if (config.type == 'user') {
-        if (config.peer_id == signaling_socket.id) {
-          config.self = true;
+      if (objectData.type == 'user') {
+        if (objectData.peer_id == signaling_socket.id) {
+          objectData.self = true;
         }
       }
-      if (config.type == 'iframe') {
-        config.el = $('<iframe>').attr({
-          src   : config.url,
+      if (objectData.type == 'iframe') {
+        let jQueryEl = $('<iframe>');
+        objectData.el = jQueryEl.attr({
+          src   : objectData.url,
           class : 'positionable'
-        });
-        $('body').append(config.el);
-        config.prevUrl = config.url;
+        })[0];
+        jQueryEl.contextmenu(function() {promptDeleteItem(objectData.id)});
+        $('body').append(objectData.el);
+        objectData.prevUrl = objectData.url;
       }
-      if (config.type == 'image') {
-        config.el = $('<iframe>').attr({
-          src   : config.url,
+      if (objectData.type == 'image') {
+        let jQueryEl = $('<img>');
+        objectData.el = jQueryEl.attr({
+          src   : objectData.url,
           class : 'positionable'
-        });
-        $('body').append(config.el);
+        })[0];
+        jQueryEl.contextmenu(function() {promptDeleteItem(objectData.id)});
+        $('body').append(objectData.el);
       }
     }
 
     // apply updates to the object element
-    let so = serverObjects[config.id];
+    let so = serverObjects[objectData.id];
 
     // we normally get the object from the server before webrtc is finished
     // connecting, so if the element is null we check to see if the element
@@ -136,12 +135,16 @@ function init() {
     if (so.self || so.el == null) {
       return;
     }
-
-    so.el.style.left = so['x'] + 'px';
-    so.el.style.top = so['y'] + 'px';
-    so.el.style.zIndex = so['z'];
-    so.el.style.width = so['width'] + 'px';
-    so.el.style.height = so['height'] + 'px';
+    if (so.el.style) {
+      so.el.style.left = so['x'] + 'px';
+      so.el.style.top = so['y'] + 'px';
+      so.el.style.zIndex = so['z'];
+      so.el.style.width = so['width'] + 'px';
+      so.el.style.height = so['height'] + 'px';
+    }
+    else {
+      so.el.style = {};
+    }
 
     // type specific updates
     if (so.type == 'user') {
@@ -168,4 +171,24 @@ function init() {
       }
     }
   });
+
+  // This function is called when an object is deleted.
+  signaling_socket.on('deleteId', function(config) {
+    let so = serverObjects[config.id];
+
+    if (so.el) {
+      so.el.parentNode.removeChild(so.el);
+    }
+    delete serverObjects[config.id];
+  });
+
+}
+
+function promptDeleteItem(id) {
+  if (confirm(
+`Delete this object? This will delete it for everybody.`)) {
+    signaling_socket.emit('deleteId', {
+      id : id
+    });
+  }
 }

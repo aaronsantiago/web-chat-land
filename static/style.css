@@ -1,28 +1,14 @@
-html,
-body {
-  background-color: #333;
-  background-image: url('/static/clue.jpg');
-  background-size: 3000px;
-  background-repeat: no-repeat;
-  width: 3000px;
-  height: 3000px;
+.dg.ac {
+  z-index: 999999 !important;
 }
 .positionable {
-  /*width: 320px;*/
-  /*height: 240px;*/
   position: absolute;
-  /*padding: 200px;*/
-  /*border:  3px solid black;*/
-}
-.spinner {
+  background: #000;
 }
 audio {
   width: 320px;
   height: 240px;
   position: absolute;
-  padding: 200px;
-  /*background-color:*/
-  /*border:  3px solid black;*/
 }
 #joystickZone {
   position: fixed;
@@ -34,8 +20,8 @@ audio {
 }
 
 .joystick {
-  color: #ffffff88;
-  background-color: #ffffff58;
+  color: #0fdf7f88;
+  background-color: #0fdf7f88;
   border-radius: 100%;
   cursor: pointer;
   height: 100%;
@@ -54,60 +40,6 @@ audio {
   height: 100vh;
 }
 
-#television {
-  position: absolute;
-}
-
-#globalText {
-  position: fixed;
-  top: 300px;
-  right: 0px;
-  z-index: 1000;
-}
-
-#charadesButton {
-  position: absolute;
-  top: 1100px;
-  left: 700px;
-  z-index: 1000;
-  height: 50px;
-  background: lightsteelblue;
-  display: inline-block;
-  padding: 0.3em 1.2em;
-  margin: 0 0.1em 0.1em 0;
-  border: 0.16em solid rgba(255, 255, 255, 0);
-  border-radius: 2em;
-  box-sizing: border-box;
-  text-decoration: none;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 600;
-  color: #ffffff;
-  text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.35);
-  text-align: center;
-  transition: all 0.2s;
-}
-
-#skribblLoad {
-  position: absolute;
-  left: 4150px;
-  top: 1000px;
-  width: 150px;
-  height: 75px;
-  font-size: 30px;
-  z-index: 100;
-}
-#skribbl {
-  position: absolute;
-  padding-right: 700px;
-  left: 3300px;
-  top: 1000px;
-  width: 1000px;
-  height: 600px;
-}
-
-.nametag {
-  position: absolute;
-  z-index: 1000;
-  font-size: 100px;
-  visibility: hidden;
+iframe {
+  border-width: 2vmin;
 }

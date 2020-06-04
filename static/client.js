@@ -55,11 +55,6 @@ function init() {
       local_media.attr('class', 'positionable');
       local_media[0].style.left = '' + my_X + 'px';
       local_media[0].style.top = '' + my_Y + 'px';
-      let qtrNametagWidth = parseInt($('#myNametag').css('width')) / 4;
-      $('#myNametag').css({
-        left : `${my_X - qtrNametagWidth}px`,
-        top  : `${my_Y - 200}px`
-      });
       local_media[0].style.width = '' + guiOptions['width'] + 'px';
       local_media[0].style.height = guiOptions['height'] != "" ? '' + guiOptions['height'] + 'px' : "";
       local_media[0].style.zIndex = guiOptions['z_index'];

@@ -300,7 +300,6 @@ function setup_local_media(callback, errorback) {
         local_media.attr('controls', '');
         local_media.attr('playsinline', '');
         $('body').append(local_media);
-        $('body').append('<p id="myNametag" class="nametag">id=myNametag</p>');
         attachMediaStream(local_media[0], stream);
         peer_media_elements[signaling_socket.id] = local_media;
 

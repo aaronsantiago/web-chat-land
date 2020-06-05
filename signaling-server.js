@@ -139,7 +139,10 @@ io.sockets.on('connection', function(socket) {
     }
 
     socket.channel = ""
-    delete channels[channel][socket.id];
+
+    if (channel in channels && socket.id in channels[channel]) {
+      delete channels[channel][socket.id];
+    }
 
     for (id in channels[channel]) {
       channels[channel][id].emit('removePeer', { peer_id: socket.id });

@@ -1,4 +1,6 @@
 // This file unifies inputs and the dat.GUI menu at the top.
+// It also contains declarations for some global variables
+// (sorry i know that's disorganized...)
 
 var leftHeld = false;
 var rightHeld = false;
@@ -13,6 +15,7 @@ let serverObjects = {};
 
 const joystick = createJoystick(document.getElementById('joystickZone'));
 
+
 let gui = new dat.GUI();
 gui.close();
 let guiOptions = {
@@ -23,104 +26,8 @@ let guiOptions = {
   z_index : "",
   iframeUrl : "https://itp.nyu.edu/camp2020/calendar",
   imageUrl : "https://itp.nyu.edu/classes/satc-spring2014/wp-content/uploads/sites/44/2014/01/ITP-Floor.png",
+  disableCreationPrompts: false,
 };
-
-gui.add(
-  {
-    toggleJoystick : function() {
-      let x = document.getElementById('joystickZone');
-
-      if (x.style.display === 'none') {
-        x.style.display = 'block';
-      } else {
-        x.style.display = 'none';
-      }
-    }
-  },
-  'toggleJoystick'
-);
-gui.add(guiOptions, 'receiveStreams');
-gui.add(guiOptions, 'godMode');
-gui.add(guiOptions, 'width');
-gui.add(guiOptions, 'height');
-gui.add(guiOptions, 'z_index');
-gui.add(guiOptions, 'iframeUrl');
-gui.add({
-  getRoomJson : function() {
-    let roomJsonObj = {
-      objects: [],
-    }
-
-    for (let soId in serverObjects) {
-      let so = serverObjects[soId];
-      if (so.type != "user") {
-        let newObj = {};
-        for (let soKey in so) {
-          // prevent saving these fields
-          if (["id", "peer_id", "channel", "el", "prevUrl"].indexOf(soKey) < 0) {
-            newObj[soKey] = so[soKey];
-          }
-        }
-        roomJsonObj.objects.push(newObj);
-      }
-    }
-    alert(JSON.stringify(roomJsonObj));
-  }
-}, "getRoomJson")
-gui.add({
-  importRoomJson : function() {
-    let jsonStr = prompt("Paste room JSON here: ", "");
-    let jsonObj = null;
-    try {
-        jsonObj = JSON.parse(jsonStr);
-        for (let obj of jsonObj.objects) {
-          // holy bajeezus this might be the unsafe-est thing
-          // I have EVER written
-          signaling_socket.emit('createCustom', obj);
-        }
-    } catch(e) {
-        alert(e); // error in the above string (in this case, yes)!
-        return;
-    }
-  }
-}, "importRoomJson")
-gui.add({
-  spawnIFrame : function() {
-    if (confirm(
-`Are you sure you want to create an iframe? This will appear for everyone.
-The spawned iframe will appear with the dimensions and url set in the config window.`)) {
-      signaling_socket.emit('createCustom', {
-        x     : my_X,
-        y     : my_Y,
-        z     : guiOptions.z_index,
-        width : guiOptions.width,
-        height : guiOptions.height,
-        url : guiOptions.iframeUrl,
-        type : "iframe"
-      });
-    }
-  }
-}, "spawnIFrame");
-
-
-gui.add(guiOptions, 'imageUrl');
-gui.add({
-  spawnImage : function() {
-    if (confirm(
-`Are you sure you want to create an image? This will appear for everyone.
-The spawned image will appear with the dimensions and url set in the config window.`)) {
-      signaling_socket.emit('createCustom', {
-        x     : my_X,
-        y     : my_Y,
-        z     : guiOptions.z_index,
-        width : guiOptions.width,
-        height : guiOptions.height,
-        url : guiOptions.imageUrl,
-        type : "image"
-      });
-    }
-  }
-}, "spawnImage")
 
 gui.add(
   {
@@ -166,6 +73,107 @@ gui.add(
   },
   'screenShare'
 );
+
+gui.add(
+  {
+    toggleJoystick : function() {
+      let x = document.getElementById('joystickZone');
+
+      if (x.style.display === 'none') {
+        x.style.display = 'block';
+      } else {
+        x.style.display = 'none';
+      }
+    }
+  },
+  'toggleJoystick'
+);
+gui.add(guiOptions, 'width');
+gui.add(guiOptions, 'height');
+gui.add(guiOptions, 'z_index');
+gui.add(guiOptions, 'iframeUrl');
+gui.add({
+  spawnIFrame : function() {
+    if (guiOptions.disableCreationPrompts || confirm(
+`Are you sure you want to create an iframe? This will appear for everyone.
+The spawned iframe will appear with the dimensions and url set in the config window.`)) {
+      signaling_socket.emit('createCustom', {
+        x     : my_X,
+        y     : my_Y,
+        z     : guiOptions.z_index,
+        width : guiOptions.width,
+        height : guiOptions.height,
+        url : guiOptions.iframeUrl,
+        type : "iframe"
+      });
+    }
+  }
+}, "spawnIFrame");
+
+
+gui.add(guiOptions, 'imageUrl');
+gui.add({
+  spawnImage : function() {
+    if (guiOptions.disableCreationPrompts || confirm(
+`Are you sure you want to create an image? This will appear for everyone.
+The spawned image will appear with the dimensions and url set in the config window.`)) {
+      signaling_socket.emit('createCustom', {
+        x     : my_X,
+        y     : my_Y,
+        z     : guiOptions.z_index,
+        width : guiOptions.width,
+        height : guiOptions.height,
+        url : guiOptions.imageUrl,
+        type : "image"
+      });
+    }
+  }
+}, "spawnImage")
+
+var f2 = gui.addFolder('Advanced options');
+f2.add(guiOptions, 'receiveStreams');
+f2.add(guiOptions, 'godMode');
+f2.add(guiOptions, 'disableCreationPrompts');
+f2.add({
+  getRoomJson : function() {
+    let roomJsonObj = {
+      objects: [],
+    }
+
+    for (let soId in serverObjects) {
+      let so = serverObjects[soId];
+      if (so.type != "user") {
+        let newObj = {};
+        for (let soKey in so) {
+          // prevent saving these fields
+          if (["id", "peer_id", "channel", "el", "prevUrl"].indexOf(soKey) < 0) {
+            newObj[soKey] = so[soKey];
+          }
+        }
+        roomJsonObj.objects.push(newObj);
+      }
+    }
+    alert(JSON.stringify(roomJsonObj));
+  }
+}, "getRoomJson")
+f2.add({
+  importRoomJson : function() {
+    let jsonStr = prompt("Paste room JSON here: ", "");
+    let jsonObj = null;
+    try {
+        jsonObj = JSON.parse(jsonStr);
+        for (let obj of jsonObj.objects) {
+          // holy bajeezus this might be the unsafe-est thing
+          // I have EVER written
+          signaling_socket.emit('createCustom', obj);
+        }
+    } catch(e) {
+        alert(e); // error in the above string (in this case, yes)!
+        return;
+    }
+  }
+}, "importRoomJson");
+
 
 function isScrolledIntoView(elem) {
   var docViewTop = $(window).scrollTop();

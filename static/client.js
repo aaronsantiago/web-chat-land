@@ -7,13 +7,18 @@ function init() {
 
 
   function updateMyAvatar() {
-    signaling_socket.emit('updateSelf', {
+    let selfDescriptor = {
       x     : my_X,
       y     : my_Y,
       z     : guiOptions.z_index,
       width : guiOptions.width,
-      height : guiOptions.height
-    });
+      height : guiOptions.height,
+    };
+    if (audioOnlyImage) {
+      console.log(audioOnlyImage)
+      selfDescriptor.url = audioOnlyImage;
+    }
+    signaling_socket.emit('updateSelf', selfDescriptor);
     if (local_media != null) {
       local_media[0].volume = 0;
     }
@@ -120,7 +125,15 @@ function init() {
     if (so.el == null && so.type == 'user') {
       if (so.peer_id in peer_media_elements) {
         so.el = peer_media_elements[so.peer_id][0];
+        console.log(so.el);
         peer_media_elements[so.peer_id].attr('class', 'positionable');
+        // if (so.url) {
+        //   let jQueryEl = $('<img>');
+        //   let domEl = jQueryEl.attr({
+        //     src   : so.url
+        //   })[0];
+        //   so.el.appendChild(domEl);
+        // }
       } else {
         return;
       }

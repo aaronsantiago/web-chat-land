@@ -35,9 +35,13 @@ audio {
   right: 0;
   top: 0;
   z-index: 1000;
-  font-size: 8vh;
+  font-size: 6vh;
   width: 100vw;
   height: 100vh;
+}
+.fixedDiv button {
+  font-size: 4vh;
+  margin: 2vh;
 }
 
 iframe {

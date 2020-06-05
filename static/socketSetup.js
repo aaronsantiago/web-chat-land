@@ -30,7 +30,7 @@ function initSocket() {
     peer_media_elements = {};
   });
   function join_chat_channel(channel, userdata) {
-    signaling_socket.emit('join', { channel: channel, userdata: userdata });
+    signaling_socket.emit('join', { channel: channel, userdata: userdata, isVideo: !joinAudioOnly});
   }
   function part_chat_channel(channel) {
     signaling_socket.emit('part', channel);
@@ -122,7 +122,7 @@ function initSocket() {
                      */
     if (config.should_create_offer) {
       console.log("Creating RTC offer to ", peer_id);
-      peer_connection.createOffer().then(
+      peer_connection.createOffer({offerToReceiveVideo:config.isVideo}).then(
         function(local_description) {
           console.log("Local offer description is: ", local_description);
           peer_connection.setLocalDescription(local_description).then(
@@ -255,12 +255,13 @@ function setup_local_media(callback, errorback) {
     // console.log('DEPRECATED, attachMediaStream will soon be removed.');
     element.srcObject = stream;
   };
-  if (false) {
+  if (joinAudioOnly) {
     navigator.getUserMedia(
       { audio: true },
       function(stream) {
+        console.log("adding local stream to dom")
         /* user accepted access to a/v */
-        console.log("Access granted to audio/video");
+        console.log("Access granted to audio only");
         local_media_stream = stream;
         local_media = $('<audio>');
         local_media.attr('autoplay', 'autoplay');
@@ -268,9 +269,12 @@ function setup_local_media(callback, errorback) {
           'muted',
           'true'
         ); /* always mute ourselves by default */
+        local_media.attr('id', 'myVideo');
         local_media.attr('controls', '');
+        local_media.attr('playsinline', '');
         $('body').append(local_media);
         attachMediaStream(local_media[0], stream);
+        peer_media_elements[signaling_socket.id] = local_media;
 
         if (callback) callback();
       },

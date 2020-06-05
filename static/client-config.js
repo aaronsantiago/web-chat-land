@@ -2,7 +2,7 @@
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-
+let joinAudioOnly = false;
 
 var SIGNALING_SERVER = 'http://localhost:38001';
 var DEFAULT_CHANNEL = urlParams.get("channel") || 'default';

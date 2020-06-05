@@ -11,9 +11,21 @@
     </head>
     <body>
         <div id="joystickZone"></div>
-        <div id="destroy" onclick="document.getElementById('destroy').parentNode.removeChild(document.getElementById('destroy')); init();" class="fixedDiv">
-            welcome to web chat land.<br>rules: you need a webcam. arrow keys to move. joystick in the bottom left for mobile users. click anywhere to start! <br>
-            screensharing works on chrome only. audio screensharing only supported in windows.
+        <div id="destroy" class="fixedDiv">
+            <div>welcome to web chat land.</div>
+            <div>rules: you need a webcam. arrow keys to move. joystick in the bottom left for mobile users. click one of the options below to start!<div>
+            <div>screensharing works on chrome only. audio screensharing only supported in windows.</div>
+            <div>use the menu in the top right (once you're in) to add things to your room!</div>
+            <div>you can add images or webpages, and everyone can see!</div>
+            <div>right click webpage borders or images to delete them.</div>
+            <div>
+                <button onclick="document.getElementById('destroy').parentNode.removeChild(document.getElementById('destroy')); init();">
+                    join with camera
+                </button>
+                <button onclick="joinAudioOnly = true; document.getElementById('destroy').parentNode.removeChild(document.getElementById('destroy')); init();">
+                    join audio only
+                </button>
+            </div>
         </div>
 
         <!-- 

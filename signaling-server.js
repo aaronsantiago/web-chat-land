@@ -110,18 +110,21 @@ io.sockets.on('connection', function(socket) {
       width: 320,
       height: "",
       type: "user",
-      channel: channel
+      channel: channel,
+      isVideo: config.isVideo,
     };
 
     for (id in channels[channel]) {
       channels[channel][id].emit('addPeer', {
         peer_id             : socket.id,
         should_create_offer : false,
+        isVideo : config.isVideo,
         // position            : avatars[socket.id]
       });
       socket.emit('addPeer', {
         peer_id             : id,
         should_create_offer : true,
+        isVideo: avatars[id].isVideo,
         // position            : avatars[socket.id]
       });
     }
@@ -174,10 +177,11 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('deleteId', function(config) {
-    // IO.SOCKETS breaks channel stuff
-    // createCustom(config);
+    let channel = avatars[config.id].channel;
+    for (let peerId in channels[channel]) {
+      channels[channel][peerId].emit("deleteId", config);
+    }
     delete avatars[config.id];
-    socket.emit("deleteId", config)
   });
 
   socket.on('relaySessionDescription', function(config) {

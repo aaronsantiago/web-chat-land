@@ -14,10 +14,6 @@ function init() {
       width : guiOptions.width,
       height : guiOptions.height,
     };
-    if (audioOnlyImage) {
-      console.log(audioOnlyImage)
-      selfDescriptor.url = audioOnlyImage;
-    }
     signaling_socket.emit('updateSelf', selfDescriptor);
     if (local_media != null) {
       local_media[0].volume = 0;

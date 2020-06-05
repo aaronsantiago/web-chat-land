@@ -15,64 +15,22 @@ let serverObjects = {};
 
 const joystick = createJoystick(document.getElementById('joystickZone'));
 
+const defaultWidth = 320;
+const defaultHeight = "";
+const defaultZIndex = "";
 
 let gui = new dat.GUI();
 gui.close();
 let guiOptions = {
   receiveStreams : true,
   godMode        : false,
-  width          : 320,
-  height : "",
-  z_index : "",
+  width          : defaultWidth,
+  height : defaultHeight,
+  z_index : defaultZIndex,
   iframeUrl : "https://itp.nyu.edu/camp2020/calendar",
   imageUrl : "https://itp.nyu.edu/classes/satc-spring2014/wp-content/uploads/sites/44/2014/01/ITP-Floor.png",
   disableCreationPrompts: false,
 };
-
-gui.add(
-  {
-    screenShare : function() {
-      let captureStream = null;
-
-      local_media[0].srcObject.getTracks().forEach((track) => track.stop());
-      navigator.mediaDevices
-        .getDisplayMedia({ audio: true, video: true })
-        .catch((err) => {
-          console.error('Error:' + err);
-          return null;
-        })
-        .then(function(stream) {
-          // console.log(stream);
-          for (let videoSender of videoSenders) {
-            var screenVideoTrack = stream.getVideoTracks()[0];
-            // in case stream is already closed
-            try {
-              videoSender.replaceTrack(screenVideoTrack);
-            } catch (e) {
-              console.log(e);
-            }
-          }
-          for (let audioSender of audioSenders) {
-            var screenAudioTrack = stream.getAudioTracks()[0];
-            try {
-              audioSender.replaceTrack(screenAudioTrack);
-            } catch (e) {
-              console.log(e);
-            }
-          }
-          local_media[0].srcObject = stream;
-          local_media_stream = stream;
-        });
-      // navigator.mediaDevices.getDisplayMedia({}).catch(err => { console.error("Error:" + err); return null; })
-      // .then(function(stream){
-      //     // console.log(stream);
-      //     var screenAudioTrack = stream.getAudioTracks()[0];
-      //     audioSender.replaceTrack(screenAudioTrack);
-      //   });
-    }
-  },
-  'screenShare'
-);
 
 gui.add(
   {
@@ -88,6 +46,16 @@ gui.add(
   },
   'toggleJoystick'
 );
+gui.add({
+  goBackToNormal : function() {
+    guiOptions.width = defaultWidth;
+    guiOptions.height = defaultHeight;
+    guiOptions.z_index = defaultZIndex;
+    for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+    }
+  }
+}, "goBackToNormal")
 gui.add(guiOptions, 'width');
 gui.add(guiOptions, 'height');
 gui.add(guiOptions, 'z_index');
@@ -131,6 +99,50 @@ The spawned image will appear with the dimensions and url set in the config wind
 }, "spawnImage")
 
 var f2 = gui.addFolder('Advanced options');
+f2.add(
+  {
+    screenShare : function() {
+      let captureStream = null;
+
+      local_media[0].srcObject.getTracks().forEach((track) => track.stop());
+      navigator.mediaDevices
+        .getDisplayMedia({ audio: true, video: true })
+        .catch((err) => {
+          console.error('Error:' + err);
+          return null;
+        })
+        .then(function(stream) {
+          // console.log(stream);
+          for (let videoSender of videoSenders) {
+            var screenVideoTrack = stream.getVideoTracks()[0];
+            // in case stream is already closed
+            try {
+              videoSender.replaceTrack(screenVideoTrack);
+            } catch (e) {
+              console.log(e);
+            }
+          }
+          for (let audioSender of audioSenders) {
+            var screenAudioTrack = stream.getAudioTracks()[0];
+            try {
+              audioSender.replaceTrack(screenAudioTrack);
+            } catch (e) {
+              console.log(e);
+            }
+          }
+          local_media[0].srcObject = stream;
+          local_media_stream = stream;
+        });
+      // navigator.mediaDevices.getDisplayMedia({}).catch(err => { console.error("Error:" + err); return null; })
+      // .then(function(stream){
+      //     // console.log(stream);
+      //     var screenAudioTrack = stream.getAudioTracks()[0];
+      //     audioSender.replaceTrack(screenAudioTrack);
+      //   });
+    }
+  },
+  'screenShare'
+);
 f2.add(guiOptions, 'receiveStreams');
 f2.add(guiOptions, 'godMode');
 f2.add(guiOptions, 'disableCreationPrompts');

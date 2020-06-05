@@ -46,6 +46,45 @@ gui.add(guiOptions, 'height');
 gui.add(guiOptions, 'z_index');
 gui.add(guiOptions, 'iframeUrl');
 gui.add({
+  getRoomJson : function() {
+    let roomJsonObj = {
+      objects: [],
+    }
+
+    for (let soId in serverObjects) {
+      let so = serverObjects[soId];
+      if (so.type != "user") {
+        let newObj = {};
+        for (let soKey in so) {
+          // prevent saving these fields
+          if (["id", "peer_id", "channel", "el", "prevUrl"].indexOf(soKey) < 0) {
+            newObj[soKey] = so[soKey];
+          }
+        }
+        roomJsonObj.objects.push(newObj);
+      }
+    }
+    alert(JSON.stringify(roomJsonObj));
+  }
+}, "getRoomJson")
+gui.add({
+  importRoomJson : function() {
+    let jsonStr = prompt("Paste room JSON here: ", "");
+    let jsonObj = null;
+    try {
+        jsonObj = JSON.parse(jsonStr);
+        for (let obj of jsonObj.objects) {
+          // holy bajeezus this might be the unsafe-est thing
+          // I have EVER written
+          signaling_socket.emit('createCustom', obj);
+        }
+    } catch(e) {
+        alert(e); // error in the above string (in this case, yes)!
+        return;
+    }
+  }
+}, "importRoomJson")
+gui.add({
   spawnIFrame : function() {
     if (confirm(
 `Are you sure you want to create an iframe? This will appear for everyone.
@@ -61,7 +100,7 @@ The spawned iframe will appear with the dimensions and url set in the config win
       });
     }
   }
-}, "spawnIFrame")
+}, "spawnIFrame");
 
 
 gui.add(guiOptions, 'imageUrl');

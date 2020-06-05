@@ -159,6 +159,7 @@ function initSocket() {
     var stuff = peer.setRemoteDescription(desc).then(
       function() {
         console.log("setRemoteDescription succeeded");
+        console.log(remote_description); 
         if (remote_description.type == 'offer') {
           console.log("Creating answer");
           peer.createAnswer().then(
@@ -284,7 +285,7 @@ function setup_local_media(callback, errorback) {
     );
   } else {
     navigator.getUserMedia(
-      { audio: true, video: {width:{ideal:1}} },
+      { audio: true, video: true },
       function(stream) {
         console.log("adding local stream to dom")
         /* user accepted access to a/v */
